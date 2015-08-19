@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pivotal to Github</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <style>
+    /* apply a natural box layout model to all elements, but allowing components to change */
+    html {
+      box-sizing: border-box;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 1em;
+        border: 1px #ccc solid;
+        font-size: 15px;
+    }
+    input:focus, textarea:focus{
+        outline: none;
+        border-color: green;
+    }
+    textarea {
+        min-height: 300px;
+        min-height: 70vh;
+    }
+    .inline {
+        display: inline-block;
+    }
+    .title-input {
+        font-weight: bold;
+    }
+    .github_url {
+        width: 80%;
+    }
+    .submit {
+        width: 20%;
+    }
+    </style>
+</head>
+<body>
+<form method=GET class='theForm'>
+<br>
+<input class='title-input' type="text" value="[{{story.story_type}}] {{ story.name }}" name='title' autofocus>
+<br>
+<textarea name="body">
+{% set owned_by=story.owned_by or "..." %}
+🙇{{story.requested_by}} → {{ owned_by }} ({{story.created_at.strftime('%a, %b %d') }})
+👉 {{ story.url }}
+
+---
+
+{% if story.description -%}
+{{ story.description}}
+{% else -%}
+- [ ] ...
+{% endif %}
+
+{% if story.notes %}
+__Additional info:__
+{% for note in story.notes %}
+> {{ note.author }}: `{{note.text}}`
+{%-endfor %}
+{% endif -%}
+
+</textarea>
+<div>
+<input type="text" name='github-url' class='github_url inline' placeholder="https://github.com/username/project/" required><!--
+--><input type="submit" value='Submit to github' class='inline submit'>
+</div>
+</form>
+<script>
+function get_github_details(url) {
+    url = url.trim()
+    // try to parse the url with github.com in it.
+    var re = /github.com\/([\w+-]+)\/([\w+-]+)/;
+    var m;
+
+    if ((m = re.exec(url)) !== null) {
+        if (m.index === re.lastIndex) {
+            re.lastIndex++;
+        }
+        return {
+            "username": m[1],
+            "repo_name": m[2]
+        }
+    }
+    // parse the case where there is not github.com i.e. <username>/<reponame> only.
+    re = /^([\w+-]+)\/([\w+-]+)$/;
+    if ((m = re.exec(url)) !== null) {
+        if (m.index === re.lastIndex) {
+            re.lastIndex++;
+        }
+        console.log(m);
+        return {
+            "username": m[1],
+            "repo_name": m[2]
+        }
+    }
+
+    return null;
+}
+
+$(function(){
+    var github_input = $('.github_url')
+        , form = $('.theForm')
+        , submit_btn = $('.submit')
+        , github_url = $.cookie('github_url');
+
+    github_input.val(github_url);
+    github_input.focusout(function () {
+        github_url = github_input.val()
+        $.cookie('github_url', github_url);
+    })
+    submit_btn.click(function(e){
+        e.preventDefault();
+        $.cookie('github_url', github_url);
+        github_url = github_input.val()
+        github_details = get_github_details(github_url);
+        if(!github_details){
+            alert("You must provide valid github project url before submiting to github.");
+            github_input.focus();
+            return false;
+        };
+        action_url = 'https://github.com/'+ github_details.username +'/'+ github_details.repo_name+'/issues/new';
+        form.attr('action', action_url);
+        form.submit();
+    });
+});
+
+</script>
+
+</body>
+</html>

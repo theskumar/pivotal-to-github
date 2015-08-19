@@ -1,0 +1,8 @@
+{
+  "name": "Pivotal to Github",
+  "description": "Helper service to convert pivotal stories to github issues.",
+  "website": "https://github.com/theskumar/pivotal-to-github",
+  "env": {
+    "PIVOTAL_TOKEN": ""
+  }
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pivotal2github | Welcome</title>
+</head>
+<body>
+
+<h1>Pivotal2Github</h1>
+<p>Drag this link onto your bookmark area.</p>
+
+<a class='bitlink' href="#">pivotal2github</a>
+<div class="link_detail"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script>
+    var root = window.location.protocol + '//' + window.location.host + window.location.pathname
+    var root_encoded = encodeURIComponent(root);
+    var href = "javascript:(function()%7Bwindow.location%3D'"+ root_encoded +"' %2B window.location.pathname%7D)()"
+    var bookmarklet = $('.bitlink');
+    bookmarklet.attr('href', href);
+</script>
+
+</body>
+</html>
